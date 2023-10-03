@@ -2,121 +2,98 @@
 
 ```shell
 cd ./ #root directory of our project
-npx core-modules-payment-razorpay-frontend
+git clone project
+
 ```
 
 # Dependencies
-
+Client Side
 1. Axios
+
+Server Side
+1. Axios
+2. query-string
+
+## Setting up the config file
+```js
+const PROVIDERS_TYPE = {
+  LINKEDIN: 'LinkedIn',
+  GOOGLE: 'Google',
+};
+const GoogleManager = {
+  CLIENT_ID: env.GOOGLE_CLIENT_ID,
+  CLIENT_SECRET: env.GOOGLE_CLIENT_SECRET,
+};
+const RouteManager = {
+  ignoredRoutes: ['/login', '/signup'],
+  signedOffRedirect: ['/login'],
+};
+const LinkedInManager = {
+  clientId: env.LINKEDIN_CLIENT_ID,
+  clientSecret: env.LINKEDIN_CLIENT_SECRET,
+  redirectUrl: '', // your redirect url
+  oauthUrl:
+    'https://www.linkedin.com/oauth/v2/authorization?response_type=code',
+  scope: 'openid%20profile%20email',
+  state: '', //randomly generated state eg: 23rjskdf324
+  serverUrl: '', //Enter our server url which will verify the code and returns you user and accessToken
+};
+const PROVIDERS = [PROVIDERS_TYPE.GOOGLE];
+export {
+  GoogleManager,
+  RouteManager,
+  PROVIDERS,
+  PROVIDERS_TYPE,
+  LinkedInManager,
+};
+
+```
 
 # Usage
 
-#### Wrapping the component inside Razorpay Provider
+#### Wrapping the component inside auth provider
 
 ```js
-// Path will remain same if you are using core-modules-frontend-base
-import RazorpayProvider from '../payment/RazorPayProvider';
+import AuthProvider from 'core-modules-auth-provider/AuthProvider';
 ```
 
-Wrap the component inside `RazorpayProvider` where you want to use Razorpay
+Wrap the component inside `AuthProvider` where you want to use Auth
 
 ```js
-<RazorpayProvider>
+<AuthProvider>
   <App />
-</RazorpayProvider>
+</AuthProvider>
 ```
 
-- This will load the Razorpay script in you application.
-
-## Note
-
-If you are using payment components in more than one components then its, prefered to wrap the whole <App/> component inside the `RazorpayProvider`
-
-#### Using `isLoading` and `isError` state inside the children
-
+- This will return user 
+- Initially `null` but when user logges in it will return a user object
 ```js
-// App.js
-import { useContext } from 'react';
-import RazorPayContext from '../payment/RazorPayProvider';
-export default function App() {
-  const { isLoading, isError } = useContext(RazorPayContext);
-  if (isLoading) {
-    return <div>Loading Razorpay</div>;
-  }
-  if (isError) {
-    return <div>Failed to load razorpay</div>;
-  }
-  return <div>This is app</div>;
-}
-```
-
-#### Using Pay component to accept payment
-
-```js
-import Pay from '../../payment/core/Pay
-```
-
-```js
-// App.js
-export default function App() {
-  const { isLoading, isError } = useContext(RazorPayContext);
-  if (isLoading) {
-    return <div>Loading Razorpay</div>;
-  }
-  if (isError) {
-    return <div>Failed to load razorpay</div>;
-  }
-  return (
-    <div>
-      <Pay
-        //Required Fields
-        razorpayKey="razorpay_key"
-        amount={'amount'}
-        onSuccess={() => {}}
-        onFailure={() => {}}
-        name="Test"
-        verifyPaymentCallbackUrl="test"
-        createOrderCallback="test"
-        // Optionals
-        address=""
-        theme=""
-        logo=""
-        description=""
-      >
-        <button>Pay amount</button>
-      </Pay>
-    </div>
-  );
+user = {
+  first_name:'a',
+  last_name:'b',
+  profile:'a',
+  email:'a@a'
 }
 ```
 
 ## Note
 
-`Pay` component accepts any component which have `onClick `attribute. `Pay` will auto take-care of the `onClick `function.
-**Although you can pass any html element having onClick attribute it still recommended to use button**
+If you are using auth  in more than one components then its, prefered to wrap the whole <App/> component inside the `AuthProvider`
 
-# Props Type and default values
-
+## Using Google Provider
+- First wrap the Google Provider inside the AuthProvider
+- Then you GoogleLogin and GoogleLogout inside the GoogleProvider
 ```js
-// Props type
-Pay.propTypes = {
-  razorpayKey: PropTypes.string.isRequired,
-  amount: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-  description: PropTypes.string,
-  logo: PropTypes.string,
-  onSuccess: PropTypes.func.isRequired,
-  onFailure: PropTypes.func.isRequired,
-  verifyPaymentCallbackUrl: PropTypes.string.isRequired,
-  createOrderCallback: PropTypes.string.isRequired,
-  address: PropTypes.string,
-  theme: PropTypes.object,
-};
-
-// Props default Values
-Pay.defaultProps = {
-  theme: {
-    color: '#008080',
-  },
-};
+  <AuthProvider>
+    <GoogleProvider
+    onScriptLoadSuccess = {()=>{}},
+    onScriptLoadFailer = {()=>},
+    >
+    <GoogleLogin
+      onSuccess = {(res)=>{}}
+      onError = {()=>{}}
+      style={}
+    />
+    </GoogleProvider>
+  </AuthProvider>
 ```

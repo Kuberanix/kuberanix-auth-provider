@@ -97,6 +97,7 @@ function GoogleLogin({
       picture: profile,
     } = data;
     setUser({ first_name, last_name, email, profile });
+    onSuccess(res);
   }, []);
   useEffect(() => {
     if (!scriptLoaded) return;
